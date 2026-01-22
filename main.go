@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"ulasin-backend/config"
+	"ulasin-backend/router"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -28,6 +29,9 @@ func main() {
 
 	// instansiasi object fiber baru
 	app := fiber.New()
+
+	// panggil router
+	router.SetupRoutes(app)
 
 	// jalankan middleware
 	app.Use(cors.New(config.SetupCORS()))
