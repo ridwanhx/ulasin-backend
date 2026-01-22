@@ -14,15 +14,25 @@ import (
 func main() {
 	_ = godotenv.Load()
 
+	// konek ke DB
 	if err := config.InitDatabase(); err != nil {
 		log.Fatal("Gagal terhubung ke database", err)
 	}
 	log.Println("Berhasil terhubung ke Database")
 
+	// jalankan Auto Migration
+	if err := config.Migrate(); err != nil {
+		log.Fatal("Gagal migrate database:", err)
+	}
+	log.Println("Migrasi database berhasil")
+
+	// instansiasi object fiber baru
 	app := fiber.New()
 
+	// jalankan middleware
 	app.Use(cors.New(config.SetupCORS()))
 
+	// route untuk testing koneksi ke db
 	app.Get("/health", func (c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status": "ok",
@@ -30,6 +40,7 @@ func main() {
 		})
 	})
 
+	// inisialisasi port dari .env
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080"
