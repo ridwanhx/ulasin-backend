@@ -8,6 +8,7 @@ import (
 // inisialisasi struct UserRepository
 type UserRepository struct{}
 
+// Register
 func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }

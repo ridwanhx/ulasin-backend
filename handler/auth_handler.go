@@ -2,8 +2,11 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 	"ulasin-backend/model"
 	"ulasin-backend/repository"
+	// utils
+	"ulasin-backend/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -89,3 +92,74 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		},
 	})
 }
+
+// Section Login
+// inisialisasi struct request login
+type LoginRequest struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+// Login Header
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
+	var req LoginRequest
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Format data salah",
+			"error": err.Error(),
+		})
+	}
+
+	// trim
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+
+	if req.Email == "" || req.Password == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"message": "Email dan password wajib diisi.",
+		})
+	}
+
+	// cari user
+	user, err := h.userRepo.FindByEmail(req.Email)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{
+			"message": "Email atau password salah",
+			"error": err.Error(),
+		})
+	}
+
+	// compare password
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(req.Password),
+	); err != nil {
+		return c.Status(401).JSON(fiber.Map{
+			"message": "Email atau password salah",
+			"error": err.Error(),
+		})
+	}
+
+	// generate json web token (jwt)
+	token, err := utils.GenerateJWT(user.ID, user.Role)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Gagal generate token",
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Login berhasil",
+		"token": token,
+		"user": fiber.Map{
+			"id": user.ID,
+			"nama": user.Nama,
+			"email": user.Email,
+			"role": user.Role,
+		},
+	})
+}
+
+// End Section Login
