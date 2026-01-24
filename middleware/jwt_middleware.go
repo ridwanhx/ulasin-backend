@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"os"
 	"strings"
-	"ulasin-backend/config"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt"
 )
 
 func JWTProtected() fiber.Handler {
@@ -33,7 +33,7 @@ func JWTProtected() fiber.Handler {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fiber.ErrUnauthorized
 			}
-			return config.JwtSecret, nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
 		if err != nil || !token.Valid {

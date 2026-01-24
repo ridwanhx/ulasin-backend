@@ -3,10 +3,9 @@ package handler
 import (
 	"net/http"
 	"strings"
+	"ulasin-backend/config"
 	"ulasin-backend/model"
 	"ulasin-backend/repository"
-	// utils
-	"ulasin-backend/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -142,7 +141,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	// generate json web token (jwt)
-	token, err := utils.GenerateJWT(user.ID, user.Role)
+	token, err := config.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Gagal generate token",

@@ -7,7 +7,9 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var JwtSecret = []byte(os.Getenv("JWT_SECRET"))
+func jwtSecret() []byte {
+	return []byte(os.Getenv("JWT_SECRET"))
+}
 
 func GenerateJWT(userID uint, role string) (string, error) {
 	claims := jwt.MapClaims{
@@ -18,5 +20,5 @@ func GenerateJWT(userID uint, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(JwtSecret)
+	return token.SignedString(jwtSecret())
 }
