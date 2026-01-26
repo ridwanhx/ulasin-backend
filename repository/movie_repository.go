@@ -21,14 +21,21 @@ func (r *MovieRepository) Create(movie *model.Movie) error {
 // Get All
 func (r *MovieRepository) FindAll() ([]model.Movie, error) {
 	var movies []model.Movie
-	err := config.DB.Find(&movies).Error
+	err := config.DB.
+		Preload("Reviews").
+		Preload("Reviews.User").
+		Find(&movies).Error
 	return movies, err
 }
 
 // Get By ID
 func (r *MovieRepository) FindByID(id uint) (*model.Movie, error) {
 	var movie model.Movie
-	err := config.DB.First(&movie, id).Error
+	err := config.DB.
+		Preload("Reviews").
+		Preload("Reviews.User").
+		First(&movie, id).Error
+		
 	if err != nil {
 		return nil, err
 	}
