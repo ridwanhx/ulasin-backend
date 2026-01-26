@@ -33,10 +33,32 @@ func (r *ReviewRepository) FindByID(id uint) (*model.Review, error) {
 	return &review, nil
 }
 
+// Cari data berdasarkan relasi
+func (r *ReviewRepository) FindByIDWithRelations(id uint) (*model.Review, error) {
+	var review model.Review
+	err := config.DB.Preload("User").Preload("Movie").First(&review, id).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &review, nil
+}
+
 func (r *ReviewRepository) Update(review *model.Review) error {
 	return config.DB.Save(review).Error
 }
 
 func (r *ReviewRepository) Delete(id uint) error {
 	return config.DB.Delete(&model.Review{}, id).Error
+}
+
+// Validasi: 1 user hanya boleh 1 review per movie
+func (r *ReviewRepository) FindByUserAndMovie(userID, movieID uint) (*model.Review, error) {
+	var review model.Review
+	err := config.DB.Where("user_id = ? AND movie_id = ?", userID, movieID).First(&review).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return &review, nil
 }

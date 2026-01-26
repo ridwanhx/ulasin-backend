@@ -59,6 +59,12 @@ func (h *ReviewHandler) Create(c *fiber.Ctx) error {
 		})
 	}
 
+	if _, err := h.reviewRepo.FindByUserAndMovie(userID, uint(movieID));err == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Kamu sudah memberi review untuk movie ini",
+		})
+	}
+
 	// simpan setiap nilai kedalam struct
 	review := model.Review{
 		UserID: userID,
@@ -75,10 +81,12 @@ func (h *ReviewHandler) Create(c *fiber.Ctx) error {
 		})
 	}
 
+	createdReview, _ := h.reviewRepo.FindByIDWithRelations(review.ID)
+
 	// kembalikan status review berhasil dibuat
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Review berhasil ditambahkan",
-		"data": review,
+		"data": createdReview,
 	})
 }
 
@@ -136,9 +144,11 @@ func (h *ReviewHandler) Update(c *fiber.Ctx) error {
 		})
 	}
 
+	updatedReview, _ := h.reviewRepo.FindByIDWithRelations(review.ID)
+
 	return c.JSON(fiber.Map{
 		"message": "Review berhasil diupdate",
-		"data": review,
+		"data": updatedReview,
 	})
 }
 
