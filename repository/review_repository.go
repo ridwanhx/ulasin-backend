@@ -3,6 +3,8 @@ package repository
 import (
 	"ulasin-backend/config"
 	"ulasin-backend/model"
+
+	"gorm.io/gorm"
 )
 
 type ReviewRepository struct{}
@@ -26,22 +28,11 @@ func (r *ReviewRepository) FindByMovieID(movieID uint) ([]model.Review, error) {
 
 func (r *ReviewRepository) FindByID(id uint) (*model.Review, error) {
 	var review model.Review
-	err := config.DB.First(&review, id).Error
-	if err != nil {
-		return nil, err
-	}
-	return &review, nil
-}
+	err := config.DB.
+		Preload("User").
+		First(&review, id).Error
 
-// Cari data berdasarkan relasi
-func (r *ReviewRepository) FindByIDWithRelations(id uint) (*model.Review, error) {
-	var review model.Review
-	err := config.DB.Preload("User").Preload("Movie").First(&review, id).Error
-
-	if err != nil {
-		return nil, err
-	}
-	return &review, nil
+	return &review, err
 }
 
 func (r *ReviewRepository) Update(review *model.Review) error {
@@ -49,7 +40,16 @@ func (r *ReviewRepository) Update(review *model.Review) error {
 }
 
 func (r *ReviewRepository) Delete(id uint) error {
-	return config.DB.Delete(&model.Review{}, id).Error
+	result := config.DB.Delete(&model.Review{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 // Validasi: 1 user hanya boleh 1 review per movie

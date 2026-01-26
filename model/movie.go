@@ -13,6 +13,10 @@ type Movie struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
+	// computed fields (Fields yang tidak akan di migrasi / pseudo column)
+	AverageRating float64 `gorm:"-" json:"average_rating"`
+	TotalReviews int64 `gorm:"-" json:"total_reviews"`
+
 	// inisialisasi foreign key (relasi dengan Reviews)
 	Reviews []Review `gorm:"foreignKey:MovieID"`
 }

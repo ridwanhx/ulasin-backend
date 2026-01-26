@@ -13,5 +13,4 @@ type Review struct {
 
 	// inisialisasi foreign key (relasi dengan user dan movie)
 	User User `gorm:"foreignKey:UserID"`
-	Movie Movie `gorm:"foreignKey:MovieID"`
 }
