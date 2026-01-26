@@ -14,6 +14,9 @@ func SetupRoutes(app *fiber.App) {
 	// movie handler
 	movieHandler := handler.NewMovieHandler()
 
+	// review handler
+	reviewHandler := handler.NewReviewHandler()
+
 	api := app.Group("/api")
 
 	// -------------
@@ -28,6 +31,9 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/movies", movieHandler.FindAll)
 	api.Get("/movies/:id", movieHandler.FindByID)
 
+	// review routes
+	api.Get("/movies/:movieId/reviews", reviewHandler.FindByMovie)
+
 	// ----------------
 	// Protected Routes
 	// ----------------
@@ -37,4 +43,9 @@ func SetupRoutes(app *fiber.App) {
 	protected.Post("/movies", movieHandler.Create)
 	protected.Put("/movies/:id", movieHandler.Update)
 	protected.Delete("/movies/:id", movieHandler.Delete)
+
+	// review routes
+	protected.Post("/movies/:movieId/reviews", reviewHandler.Create)
+	protected.Put("/reviews/:id", reviewHandler.Update)
+	protected.Delete("/reviews/:id", reviewHandler.Delete)
 }
