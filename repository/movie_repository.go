@@ -65,18 +65,21 @@ func (r *MovieRepository) Update(movie *model.Movie) error {
 
 // Delete
 func (r *MovieRepository) Delete(id uint) error {
-	result := config.DB.Delete(&model.Movie{}, id)
+	tx := config.DB.Begin()
 
-	if result.Error != nil {
-		return result.Error
+	if err := tx.Where("movie_id = ?", id).Delete(&model.Review{}).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+	if err := tx.Delete(&model.Movie{}, id).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	return nil
+	return tx.Commit().Error
 }
+
 
 // Helper Function
 func (r *MovieRepository) fillRating(movie *model.Movie) error {
