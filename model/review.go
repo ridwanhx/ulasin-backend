@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Review struct {
-	ID uint `gorm:"primaryKey"`
+	ID uint `gorm:"primaryKey" json:"id"`
 	UserID uint `gorm:"not null"`
 	MovieID uint `gorm:"not null"`
 	Skor int `gorm:"not null"`

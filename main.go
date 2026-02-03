@@ -30,12 +30,12 @@ func main() {
 	// instansiasi object fiber baru
 	app := fiber.New()
 
-	// panggil router
-	router.SetupRoutes(app)
-
 	// jalankan middleware
 	app.Use(cors.New(config.SetupCORS()))
 
+	// panggil router
+	router.SetupRoutes(app)
+	
 	// route untuk testing koneksi ke db
 	app.Get("/health", func (c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -45,10 +45,11 @@ func main() {
 	})
 
 	// inisialisasi port dari .env
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
+	log.Println("Server running on port", port)
 	log.Fatal(app.Listen(":" + port))
 }
