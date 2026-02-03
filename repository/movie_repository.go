@@ -65,17 +65,25 @@ func (r *MovieRepository) Update(movie *model.Movie) error {
 
 // Delete
 func (r *MovieRepository) Delete(id uint) error {
-	result := config.DB.Delete(&model.Movie{}, id)
+	// Gunakan Transaction untuk memastikan kedua proses berhasil
+	return config.DB.Transaction(func(tx *gorm.DB) error {
+		// 1. Hapus review yang berkaitan dulu
+		if err := tx.Where("movie_id = ?", id).Delete(&model.Review{}).Error; err != nil {
+			return err
+		}
 
-	if result.Error != nil {
-		return result.Error
-	}
+		// 2. Baru hapus Movie-nya
+		result := tx.Delete(&model.Movie{}, id)
+		if result.Error != nil {
+			return result.Error
+		}
 
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
-	}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
 
-	return nil
+		return nil
+	})
 }
 
 // Helper Function

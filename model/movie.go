@@ -18,5 +18,5 @@ type Movie struct {
 	TotalReviews int64 `gorm:"-" json:"total_reviews"`
 
 	// inisialisasi foreign key (relasi dengan Reviews)
-	Reviews []Review `gorm:"foreignKey:MovieID"`
+	Reviews []Review `gorm:"foreignKey:MovieID;constraint:OnDelete:CASCADE" json:"reviews"`
 }
